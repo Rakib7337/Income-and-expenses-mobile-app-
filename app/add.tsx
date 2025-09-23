@@ -13,18 +13,7 @@ import {
 } from 'react-native';
 import { useTransactions } from '@/hooks/useTransactions';
 import { Category, categories } from '@/app/data/categories';
-import { 
-  Briefcase, 
-  Pencil, 
-  TrendingUp, 
-  Utensils, 
-  Car, 
-  Home, 
-  ShoppingBag, 
-  Film, 
-  HeartPulse, 
-  Shapes 
-} from 'lucide-react-native';
+import { Briefcase, Pencil, TrendingUp, Utensils, Car, Chrome as Home, ShoppingBag, Film, HeartPulse, Shapes } from 'lucide-react-native';
 
 const iconMap = {
   briefcase: Briefcase,
