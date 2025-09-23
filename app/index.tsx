@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import { useTransactions } from '@/hooks/useTransactions';
-import { ArrowUpCircle, ArrowDownCircle, Wallet } from 'lucide-react-native';
+import { CircleArrowUp as ArrowUpCircle, CircleArrowDown as ArrowDownCircle, Wallet } from 'lucide-react-native';
 
 interface StatCardProps {
   title: string;
