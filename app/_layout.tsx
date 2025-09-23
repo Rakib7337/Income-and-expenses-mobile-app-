@@ -2,8 +2,11 @@ import { Tabs } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { FontAwesome } from '@expo/vector-icons';
 import { TransactionsProvider } from '@/hooks/useTransactions';
+import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 
 export default function RootLayout() {
+  useFrameworkReady();
+
   return (
     <TransactionsProvider>
       <Tabs screenOptions={{ headerShown: false }}>
@@ -37,6 +40,12 @@ export default function RootLayout() {
         />
         <Tabs.Screen
           name="edit/[id]"
+          options={{
+            href: null,
+          }}
+        />
+        <Tabs.Screen
+          name="data/categories"
           options={{
             href: null,
           }}

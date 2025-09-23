@@ -60,7 +60,11 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
   }, [transactions, isLoading]);
 
   const addTransaction = (transaction: Omit<Transaction, 'id'>) => {
-    setTransactions(prev => [...prev, { ...transaction, id: Date.now().toString() }]);
+    const newTransaction = { 
+      ...transaction, 
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}` 
+    };
+    setTransactions(prev => [newTransaction, ...prev]);
   };
 
   const updateTransaction = (id: string, updatedTransaction: Partial<Transaction>) => {

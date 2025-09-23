@@ -9,10 +9,35 @@ import {
   Alert,
   ScrollView,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import { useTransactions } from '@/hooks/useTransactions';
 import { Category, categories } from '@/app/data/categories';
-import * as LucideIcons from 'lucide-react-native';
+import { 
+  Briefcase, 
+  Pencil, 
+  TrendingUp, 
+  Utensils, 
+  Car, 
+  Home, 
+  ShoppingBag, 
+  Film, 
+  HeartPulse, 
+  Shapes 
+} from 'lucide-react-native';
+
+const iconMap = {
+  briefcase: Briefcase,
+  pencil: Pencil,
+  'trending-up': TrendingUp,
+  utensils: Utensils,
+  car: Car,
+  home: Home,
+  'shopping-bag': ShoppingBag,
+  film: Film,
+  'heart-pulse': HeartPulse,
+  shapes: Shapes,
+};
 
 export default function AddTransactionScreen() {
   const { addTransaction } = useTransactions();
@@ -31,9 +56,14 @@ export default function AddTransactionScreen() {
       return;
     }
 
+    const numericAmount = parseFloat(amount);
+    if (isNaN(numericAmount) || numericAmount <= 0) {
+      Alert.alert('Error', 'Please enter a valid positive amount');
+      return;
+    }
     addTransaction({
       description,
-      amount: parseFloat(amount),
+      amount: numericAmount,
       isIncome,
       category,
     });
@@ -76,7 +106,9 @@ export default function AddTransactionScreen() {
       <Text style={styles.categoryTitle}>Select Category</Text>
       <View style={styles.categoryContainer}>
         {filteredCategories.map((cat) => {
-          const Icon = LucideIcons[cat.icon as keyof typeof LucideIcons];
+          const Icon = iconMap[cat.icon as keyof typeof iconMap];
+          if (!Icon) return null;
+          
           return (
             <TouchableOpacity
               key={cat.id}

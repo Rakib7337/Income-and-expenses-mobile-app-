@@ -1,21 +1,25 @@
 import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import { useTransactions } from '@/hooks/useTransactions';
-import { Ionicons } from '@expo/vector-icons';
+import { ArrowUpCircle, ArrowDownCircle, Wallet } from 'lucide-react-native';
 
 interface StatCardProps {
   title: string;
   value: number;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: 'income' | 'expense' | 'balance';
   color: string;
 }
 
-const StatCard = ({ title, value, icon, color }: StatCardProps) => (
-  <View style={styles.card}>
-    <Ionicons name={icon} size={32} color={color} />
-    <Text style={styles.cardTitle}>{title}</Text>
-    <Text style={[styles.cardValue, { color }]}>${value.toFixed(2)}</Text>
-  </View>
-);
+const StatCard = ({ title, value, icon, color }: StatCardProps) => {
+  const IconComponent = icon === 'income' ? ArrowUpCircle : icon === 'expense' ? ArrowDownCircle : Wallet;
+  
+  return (
+    <View style={styles.card}>
+      <IconComponent size={32} color={color} />
+      <Text style={styles.cardTitle}>{title}</Text>
+      <Text style={[styles.cardValue, { color }]}>${value.toFixed(2)}</Text>
+    </View>
+  );
+};
 
 export default function HomeScreen() {
   const { transactions, isLoading } = useTransactions();
@@ -41,9 +45,9 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Dashboard</Text>
-      <StatCard title="Income" value={income} icon="arrow-up-circle" color="green" />
-      <StatCard title="Expenses" value={expenses} icon="arrow-down-circle" color="red" />
-      <StatCard title="Balance" value={balance} icon="wallet" color="blue" />
+      <StatCard title="Income" value={income} icon="income" color="#16a34a" />
+      <StatCard title="Expenses" value={expenses} icon="expense" color="#dc2626" />
+      <StatCard title="Balance" value={balance} icon="balance" color={balance >= 0 ? "#2563eb" : "#dc2626"} />
     </View>
   );
 }

@@ -1,7 +1,43 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, Switch, Alert } from 'react-native';
+import { 
+  StyleSheet, 
+  Text, 
+  View, 
+  TextInput, 
+  Button, 
+  Switch, 
+  Alert, 
+  ScrollView, 
+  TouchableOpacity 
+} from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTransactions } from '@/hooks/useTransactions';
+import { Category, categories } from '@/app/data/categories';
+import { 
+  Briefcase, 
+  Pencil, 
+  TrendingUp, 
+  Utensils, 
+  Car, 
+  Home, 
+  ShoppingBag, 
+  Film, 
+  HeartPulse, 
+  Shapes 
+} from 'lucide-react-native';
+
+const iconMap = {
+  briefcase: Briefcase,
+  pencil: Pencil,
+  'trending-up': TrendingUp,
+  utensils: Utensils,
+  car: Car,
+  home: Home,
+  'shopping-bag': ShoppingBag,
+  film: Film,
+  'heart-pulse': HeartPulse,
+  shapes: Shapes,
+};
 
 export default function EditTransactionScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -11,6 +47,7 @@ export default function EditTransactionScreen() {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [isIncome, setIsIncome] = useState(false);
+  const [category, setCategory] = useState<Category | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -19,21 +56,29 @@ export default function EditTransactionScreen() {
         setDescription(transaction.description);
         setAmount(transaction.amount.toString());
         setIsIncome(transaction.isIncome);
+        setCategory(transaction.category || null);
       }
     }
   }, [id, getTransactionById]);
 
+  const filteredCategories = categories.filter((c) => c.isIncome === isIncome);
   const handleUpdateTransaction = () => {
-    if (!description || !amount) {
-      Alert.alert('Error', 'Please fill in all fields');
+    if (!description || !amount || !category) {
+      Alert.alert('Error', 'Please fill in all fields and select a category');
       return;
     }
 
+    const numericAmount = parseFloat(amount);
+    if (isNaN(numericAmount) || numericAmount <= 0) {
+      Alert.alert('Error', 'Please enter a valid positive amount');
+      return;
+    }
     if (id) {
       updateTransaction(id, {
         description,
-        amount: parseFloat(amount),
+        amount: numericAmount,
         isIncome,
+        category,
       });
       router.back();
       Alert.alert('Success', 'Transaction updated successfully');
@@ -41,7 +86,7 @@ export default function EditTransactionScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Edit Transaction</Text>
       <TextInput
         style={styles.input}
@@ -57,42 +102,115 @@ export default function EditTransactionScreen() {
         onChangeText={setAmount}
       />
       <View style={styles.switchContainer}>
-        <Text>Expense</Text>
+        <Text style={styles.switchLabel}>Expense</Text>
         <Switch
           value={isIncome}
-          onValueChange={setIsIncome}
+          onValueChange={(value) => {
+            setIsIncome(value);
+            // Reset category when type changes
+            const newFilteredCategories = categories.filter((c) => c.isIncome === value);
+            if (category && !newFilteredCategories.find(c => c.id === category.id)) {
+              setCategory(null);
+            }
+          }}
         />
-        <Text>Income</Text>
+        <Text style={styles.switchLabel}>Income</Text>
       </View>
+      
+      <Text style={styles.categoryTitle}>Select Category</Text>
+      <View style={styles.categoryContainer}>
+        {filteredCategories.map((cat) => {
+          const Icon = iconMap[cat.icon as keyof typeof iconMap];
+          if (!Icon) return null;
+          
+          return (
+            <TouchableOpacity
+              key={cat.id}
+              style={[
+                styles.categoryButton,
+                { backgroundColor: cat.color },
+                category?.id === cat.id && styles.selectedCategory,
+              ]}
+              onPress={() => setCategory(cat)}
+            >
+              <Icon color="white" size={18} />
+              <Text style={styles.categoryText}>{cat.name}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+      
       <Button title="Update Transaction" onPress={handleUpdateTransaction} />
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
   },
   title: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 30,
   },
   input: {
     width: '100%',
-    height: 40,
-    borderColor: 'gray',
+    height: 50,
+    borderColor: '#ddd',
     borderWidth: 1,
+    borderRadius: 8,
     marginBottom: 20,
-    paddingHorizontal: 10,
+    paddingHorizontal: 15,
+    fontSize: 16,
   },
   switchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
-  }
+    marginBottom: 30,
+  },
+  switchLabel: {
+    fontSize: 16,
+    marginHorizontal: 10,
+  },
+  categoryTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    alignSelf: 'flex-start',
+  },
+  categoryContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginBottom: 30,
+    width: '100%',
+  },
+  categoryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    margin: 5,
+    opacity: 0.7,
+  },
+  selectedCategory: {
+    opacity: 1,
+    transform: [{ scale: 1.1 }],
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  categoryText: {
+    color: 'white',
+    marginLeft: 8,
+    fontWeight: 'bold',
+  },
 });
