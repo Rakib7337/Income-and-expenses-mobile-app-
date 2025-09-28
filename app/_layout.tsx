@@ -1,4 +1,4 @@
-@@ .. @@
+import { useFrameworkReady } from '@/hooks/useFrameworkReady'@@ .. @@
          />
          <Tabs.Screen
 -          name="+not-found"
